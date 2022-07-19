@@ -11,6 +11,43 @@ void	hooks(t_mlx	*mlx)
 	mlx_hook(mlx->win, 6, 1L << 6, hook_mousemove, &mlx);
 }
 
+t_img	new_image(t_env *env)
+{
+	t_img	*img;
+
+	img = malloc();
+	img->img = mlx_new_image(env->mlx, WIN_W, WIN_H);
+	img->ptr = mlx_get_data_addr(img->img, &img->bpp, &img->line_size,
+		   	&img->endian);
+	if (error)
+		return (del_img());
+}
+
+t_env	init(t_fractl f)
+{
+	t_img	*img;
+	t_env	*env;
+	char	*title;
+
+	env = malloc(sizeof(t_env));
+	if (env == NULL)
+		return (NULL);
+	title = ft_strjoin("fract'ol - ", f->name);
+	env->mlx = mlx_init();
+	env->win = mlx_new_window(env->mlx, WIN_W, WIN_H, title);
+	env->img = new_image(env);
+	env->pixels = malloc(sizeof(t_pixel) * WIN_W * WIN_H);
+	if (env == NULL || env->mlx == NULL || env->win == NULL || env->img == NULL
+			env->pixels == NULL)
+		return (free_exit());
+	env->mouse.isdown = 0;
+	env->fractal = f;
+	env->mouselock = 1 - f->mouse // ???
+	env->palette = get_palettes();
+	env->smooth = 1;
+	return (env);
+}
+
 int	main(int ac, char **av)
 {
 	t_env		env;

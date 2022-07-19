@@ -54,8 +54,13 @@ typedef struct	s_env
 {
 	void		*mlx;
 	void		*win;
-	t_img		img;
+	t_img		*img;
 	t_pixels	*pixels;
+	t_viewport	viewport;
+	t_palette	palette;
+	t_mouse		mouse;
+	int			smooth;
+	int			mouselock;
 }
 
 #endif

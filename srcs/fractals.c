@@ -15,8 +15,8 @@ t_fractal	*get_fractals(void)
 
 t_fractal	*match(char *str)
 {
-	t_fractal	*f;
-	int			i;
+	t_frctl	*f;
+	int		i;
 
 	f = get_fractals();
 	i = 0;

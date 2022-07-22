@@ -52,7 +52,7 @@ t_env	*init(char *fractal)
 	if (env == NULL || env->mlx == NULL || env->win == NULL || env->img == NULL || env->pixels == NULL)
 		return (del_env(env));
 	env->mouse.down = 0;
-	env->palette = get_palette(1);
+	env->palette = get_palette(2);
 	env->smooth = 1;
 	return (env);
 }

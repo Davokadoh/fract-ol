@@ -6,7 +6,7 @@
 #    By: jleroux <marvin@42lausanne.ch>             +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/07/22 12:26:53 by jleroux           #+#    #+#              #
-#    Updated: 2022/07/22 14:15:56 by jleroux          ###   ########.fr        #
+#    Updated: 2022/07/22 14:47:39 by jleroux          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -55,7 +55,7 @@ MLX_LIB	= $(addprefix $(MLX),mlx.a)
 FT		= ./libft/
 FT_LIB	= $(addprefix $(FT),libft.a)
 FT_INC	= -I ./libft
-FT_LNK	= -L ./libft -l ft -l pthread
+FT_LNK	= -L ./libft -l ft
 
 all: obj $(FT_LIB) $(MLX_LIB) $(NAME)
 

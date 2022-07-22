@@ -4,8 +4,7 @@
 
 static int	ft_error(char *msg)
 {
-	(void) msg;
-	//ft_putendl(msg);
+	ft_putendl(msg);
 	ft_putendl("Choose one of the following:");
 	ft_putendl("Mandelbrot, Julia, Burningship");
 	return (1);
@@ -30,7 +29,7 @@ int	main(int ac, char **av)
 	if ((env = init(av[1])) == NULL)
 		return (ft_error("Error: mlx init fail"));
 	reset_viewport(env);
-	//render(env);
+	render(env);
 	hooks(env);
 	mlx_loop(env->mlx);
 }

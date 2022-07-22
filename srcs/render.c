@@ -1,14 +1,48 @@
-int	color(int x, int y, t_pixel *pixels, t_palette palette)
-{
-	pixels[x + y * WIN_W];
-	return (x + y);
-}
+#include "fractol.h"
+#include "mlx.h"
 
-void	put_pixel(t_img *img, int color)
+static void	put_pixel(t_img *img, int x, int y, int color)
 {
 	if (x >= 0 && y >= 0 && x < WIN_W && y < WIN_H)
-		*(unsigned int*)img->ptr +
-			(y * img->line_size + x * img->bpp >> 3) = color;
+		*(unsigned int *)(img->ptr + (y * img->line_size + x * img->bpp / 8)) = color;
+}
+
+static int	color(int x, int y, t_pixel *pixels, t_palette palette, unsigned int max)
+{
+	unsigned int i;
+
+	(void) max;
+	i = pixels[x + y * WIN_W].iterations;
+	if (i > 50) // change to maxIter
+		return (0);
+	return (palette.colors[i % palette.size]);
+}
+
+t_cmplx	pixel_to_cmplx(int x, int y, t_viewport *v)
+{
+	t_cmplx	c;
+
+
+	c.r = (((double)x / WIN_W) * (v->xmax - v->xmin)) * v->zoom
+		+ v->xmin + v->offx;
+	c.i = (((double)y / WIN_H) * (v->ymax - v->ymin)) * v->zoom
+		+ v->ymin + v->offy;
+	return (c);
+}
+
+static int iterate(t_env *env, int x, int y)
+{
+	t_cmplx	c;
+
+	c = pixel_to_cmplx(x, y, &env->viewport);
+	if (env->name == JULIA)
+		return (julia_iterate(c));
+	else if (env->name == MANDEL)
+		return (mandelbrot_iterate(c));
+	else if (env->name == BS)
+		return (burningship_iterate(c));
+	else
+		return (0);
 }
 
 void	render(t_env *env)
@@ -17,12 +51,15 @@ void	render(t_env *env)
 	int	y;
 
 	y = -1;
-	while (++y < WIN_H)
+	while (++y <= WIN_H) //Strict < ?
 	{
 		x = -1;
-		while (++x < WIN_W)
-			env->pixels[x + y * WIN_W] = env->fractal->iterate(x, y, viewport);
-			put_pixel(env->img, x, y, color(x, y, env->pixels, env->palette));
+		while (++x <= WIN_W)
+		{
+			env->pixels[x + y * WIN_W].iterations = iterate(env, x, y);
+			put_pixel(env->img, x, y, color(x, y, env->pixels, env->palette, env->viewport.max));
+		}
 	}
-	mlx_put_image_to_window(env->mlx, env->win, env->img->img, 0, 0);
+	mlx_put_image_to_window(env->mlx, env->win, env->img->bff, 0, 0);
 }
+

@@ -1,46 +1,87 @@
-TARGET := fract-ol
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    Makefile                                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: jleroux <marvin@42lausanne.ch>             +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2022/07/22 12:26:53 by jleroux           #+#    #+#              #
+#    Updated: 2022/07/22 14:15:56 by jleroux          ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
 
-CC := gcc
-CFLAGS := -Wall -Wextra -Werror -g#-fsanitize -O2
-MLXFLAGS := -Lmlx -lmlx -framework OpenGL -framework AppKit
+NAME	= fractol
+OS		= $(shell uname)
 
-LIBFT_DIR := libft/
-LIBFT := libft/libft.a
-MLX_DIR := mlx/
-MLX := mlx/libmlx.a
+# directories
+SRCDIR	= ./srcs
+INCDIR	= ./includes
+OBJDIR	= ./obj
 
-BUILD_DIR := build
-SRCS_DIR := srcs
-SRCS := main.c\
-		render.c\
-		fractals.c\
-		mandelbrot.c
+# src / obj files
+SRC		= main.c \
+		  window.c \
+		  mouse.c \
+		  keyboard.c \
+		  fractals.c \
+		  palette.c \
+		  render.c \
+		  viewport.c \
+		  zoom.c \
+		  mandelbrot.c \
+		  julia.c \
+		  burningship.c \
 
-OBJS := $(SRCS:%.c=$(BUILD_DIR)/%.o)
+OBJ		= $(addprefix $(OBJDIR)/,$(SRC:.c=.o))
 
-# The final build step.
-$(TARGET): $(OBJS) $(LIBFT) $(MLX)
-	$(CC) $(CFLAGS) $(MLXFLAGS) $(OBJS) -o $@ $(LIBFT) $(MLX)
+# compiler
+CC		= gcc
+CFLAGS	= -Wall -Wextra -Werror -g -O2
 
-# Build step for C source
-$(BUILD_DIR)/%.o: $(SRCS_DIR)/%.c
-	@mkdir -p $(dir $@)
-	$(CC) -Imlx $(CFLAGS) -c $< -o $@
 
-$(LIBFT):
-	$(MAKE) -C $(LIBFT_DIR)
+# mlx library
+ifeq ($(OS), Linux)
+	MLX		= ./miniLibX_X11/
+	MLX_LNK	= -L $(MLX) -l mlx -lXext -lX11
+else
+	MLX		= ./mlx/
+	MLX_LNK	= -L $(MLX) -l mlx -framework OpenGL -framework AppKit
+endif
 
-$(MLX):
-	$(MAKE) -C $(MLX_DIR)
+MLX_INC	= -I $(MLX)
+MLX_LIB	= $(addprefix $(MLX),mlx.a)
 
-.PHONY: all clean fclean re
+# ft library
+FT		= ./libft/
+FT_LIB	= $(addprefix $(FT),libft.a)
+FT_INC	= -I ./libft
+FT_LNK	= -L ./libft -l ft -l pthread
 
-all: $(TARGET)
+all: obj $(FT_LIB) $(MLX_LIB) $(NAME)
+
+obj:
+	mkdir -p $(OBJDIR)
+	mkdir -p $(OBJDIR)/fractals
+
+$(OBJDIR)/%.o:$(SRCDIR)/%.c
+	$(CC) $(CFLAGS) $(MLX_INC) $(FT_INC) -I $(INCDIR) -o $@ -c $<
+
+$(FT_LIB):
+	@make -C $(FT)
+
+$(MLX_LIB):
+	@make -C $(MLX)
+
+$(NAME): $(OBJ)
+	$(CC) $(OBJ) $(MLX_LNK) $(FT_LNK) -lm -o $(NAME)
 
 clean:
-	rm -rf $(BUILD_DIR)
+	rm -rf $(OBJDIR)
+	make -C $(FT) clean
+	make -C $(MLX) clean
 
 fclean: clean
-	rm -rf $(TARGET)
+	rm -rf $(NAME)
+	make -C $(FT) fclean
 
 re: fclean all
